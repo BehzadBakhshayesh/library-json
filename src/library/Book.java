@@ -1,0 +1,128 @@
+package library;
+
+import java.time.Year;
+
+public class Book {
+    private final long id;
+    private String title;
+    private String author;
+    private int year;
+    private boolean isAvailable;
+
+    public Book(String title, String author, int year) {
+        validateParams(title, author, year);
+        this.id = IdGenerator.generateBookId();
+        this.title = title;
+        this.author = author;
+        this.year = year;
+        this.isAvailable = true;
+    }
+
+    public Book(long id, String title, String author, int year, boolean isAvailable) {
+        validateParams(title, author, year);
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.year = year;
+        this.isAvailable = isAvailable;
+    }
+
+    public long getId() {
+        return this.id;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public void setTitle(String title) {
+        validateTitle(title);
+        this.title = title;
+    }
+
+    public String getAuthor() {
+        return this.author;
+    }
+
+    public void setAuthor(String author) {
+        validateAuthor(author);
+        this.author = author;
+    }
+
+    public int getYear() {
+        return this.year;
+    }
+
+    public void setYear(int year) {
+        validateYear(year);
+        this.year = year;
+    }
+
+    public boolean isAvailable() {
+        return this.isAvailable;
+    }
+
+    public void setIsAvailable(boolean isAvailable) {
+        this.isAvailable = isAvailable;
+    }
+
+    private static void validateTitle(String title) {
+        if (title == null || title.isBlank()) {
+            throw new LibraryException("Title can not be blank");
+        }
+        if (title.contains("|")) {
+            throw new LibraryException("The '|' character is not allowed");
+        }
+    }
+
+    private static void validateAuthor(String author) {
+        if (author == null || author.isBlank()) {
+            throw new LibraryException("Author can not be blank");
+        }
+        if (author.contains("|")) {
+            throw new LibraryException("The '|' character is not allowed");
+        }
+    }
+
+    private static void validateYear(int year) {
+        if (year < 1 || year > Year.now().getValue()) {
+            throw new LibraryException("Year is not valid");
+        }
+    }
+
+    public static void validateParams(String title, String author, int year) {
+        validateTitle(title);
+        validateAuthor(author);
+        validateYear(year);
+    }
+
+    public String toFileLine() {
+        return this.id + "|" + this.title + "|" + this.author + "|" + this.year + "|" + this.isAvailable;
+    }
+
+    public static Book fromFileLine(String line) {
+        String[] parts = line.split("\\|", -1);
+        if (parts.length != 5) {
+            throw new LibraryException("Invalid book line: " + line);
+        }
+        try {
+            return new Book(
+                    Long.parseLong(parts[0].trim()),
+                    parts[1].trim(),
+                    parts[2].trim(),
+                    Integer.parseInt(parts[3].trim()),
+                    Boolean.parseBoolean(parts[4].trim())
+            );
+        } catch (NumberFormatException e) {
+            throw new LibraryException("Invalid number in book line: " + line);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "ID : " + this.id + " | Title: " + this.title + " | Author: " + this.author + " | Year: " + this.year + " | Status: " + (this.isAvailable ? "Available" : "Borrowed");
+    }
+}
+
+
+

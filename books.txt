@@ -1,0 +1,2 @@
+1|Clean Code|Robert Martin|2008|true
+2|Effective Java|Joshua Bloch|2018|false
