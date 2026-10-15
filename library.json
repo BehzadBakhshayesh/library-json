@@ -1,0 +1,35 @@
+{
+  "books": [
+    {
+      "id": 1,
+      "title": "js",
+      "author": "asdfsd",
+      "year": 256,
+      "isAvailable": false
+    },
+    {
+      "id": 2,
+      "title": "py",
+      "author": "azczxczx",
+      "year": 569,
+      "isAvailable": false
+    }
+  ],
+  "members": [
+    {
+      "id": 1,
+      "name": "behzad",
+      "email": "behzad@gmail.com",
+      "borrowedBookIds": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": 2,
+      "name": "ali",
+      "email": "ali@gmail.com",
+      "borrowedBookIds": []
+    }
+  ]
+}

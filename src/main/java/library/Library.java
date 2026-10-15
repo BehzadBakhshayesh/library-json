@@ -3,9 +3,16 @@ package library;
 import java.io.File;
 import java.util.ArrayList;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class Library {
     private static final String BOOKS_FILE = "books.txt";
     private static final String MEMBERS_FILE = "members.txt";
+    private static final String DATA_FILE = "library.json";
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private ArrayList<Book> books = new ArrayList<>();
     private ArrayList<Member> members = new ArrayList<>();
     private FileManager fileManager = new FileManager();
@@ -96,7 +103,7 @@ public class Library {
         if (foundMember == null) {
             throw new LibraryException("Member not found!");
         }
-        Member.validateParams(name,email);
+        Member.validateParams(name, email);
         foundMember.setName(name);
         foundMember.setEmail(email);
     }
@@ -149,6 +156,14 @@ public class Library {
     }
 
     public void save() {
+        List<BookData> booksData = this.books.stream().map(book -> book.toData()).collect(Collectors.toList());
+        List<MemberData> membersData = this.members.stream().map(member -> member.toData()).collect(Collectors.toList());
+        LibraryData libraryData = new LibraryData(booksData, membersData);
+        fileManager.saveText(DATA_FILE, gson.toJson(libraryData));
+    }
+    public void load() {}
+
+    public void saveFile() {
         StringBuilder booksText = new StringBuilder();
         StringBuilder membersText = new StringBuilder();
         for (Book b : books) {
@@ -161,7 +176,7 @@ public class Library {
         fileManager.saveText(MEMBERS_FILE, membersText.toString());
     }
 
-    public void load() {
+    public void loadFile() {
         this.books.clear();
         this.members.clear();
 

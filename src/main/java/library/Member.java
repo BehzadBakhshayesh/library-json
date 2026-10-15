@@ -1,7 +1,9 @@
 package library;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.List;
 
 public class Member {
     private ArrayList<Book> borrowedBooks = new ArrayList<>();
@@ -77,7 +79,7 @@ public class Member {
     }
 
     public void addBorrowedBooks(Book book) {
-        if (borrowedBooks.contains(book)){
+        if (borrowedBooks.contains(book)) {
             throw new LibraryException("This member already borrowed this book!");
         }
         this.borrowedBooks.add(book);
@@ -89,6 +91,26 @@ public class Member {
 
     public boolean hasBorrowedBook(Book book) {
         return borrowedBooks.contains(book);
+    }
+
+    public static ArrayList<Long> borrowedIdsFromLine(String line) {
+        String[] parts = line.split("\\|", -1);
+        if (parts.length != 4) {
+            throw new LibraryException("Invalid member line: " + line);
+        }
+        ArrayList<Long> ids = new ArrayList<>();
+        String last = parts[3].trim();
+        if (last.isEmpty()) {
+            return ids;
+        }
+        try {
+            for (String s : last.split(",")) {
+                ids.add(Long.parseLong(s.trim()));
+            }
+        } catch (NumberFormatException e) {
+            throw new LibraryException("Invalid book id in member line: " + line);
+        }
+        return ids;
     }
 
     public String toFileLine() {
@@ -114,25 +136,16 @@ public class Member {
         }
     }
 
-    public static ArrayList<Long> borrowedIdsFromLine(String line) {
-        String[] parts = line.split("\\|", -1);
-        if (parts.length != 4) {
-            throw new LibraryException("Invalid member line: " + line);
-        }
-        ArrayList<Long> ids = new ArrayList<>();
-        String last = parts[3].trim();
-        if (last.isEmpty()) {
-            return ids;
-        }
-        try {
-            for (String s : last.split(",")) {
-                ids.add(Long.parseLong(s.trim()));
-            }
-        } catch (NumberFormatException e) {
-            throw new LibraryException("Invalid book id in member line: " + line);
-        }
-        return ids;
+    public MemberData toData() {
+        List<Long> ids = this.borrowedBooks.stream().map(book -> book.getId()).collect(Collectors.toList());
+        return new MemberData(this.id, this.name, this.email, ids);
     }
+
+    public static Member fromData(MemberData d) {
+        // Borrowed books are linked later by Library.load()
+        return new Member(d.getId(), d.getName(), d.getEmail());
+    }
+
 
     @Override
     public String toString() {

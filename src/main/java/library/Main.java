@@ -9,6 +9,7 @@ public class Main {
     public static void main(String[] args) {
         Library library = new Library();
         try {
+//            library.loadFile();
             library.load();
         } catch (LibraryException e) {
             System.out.println("Could not load data: " + e.getMessage());
@@ -234,6 +235,7 @@ public class Main {
                     break;
                 case 13:
                     try {
+//                        library.saveFile();
                         library.save();
                     } catch (LibraryException e) {
                         System.out.println("Could not save data: " + e.getMessage());
