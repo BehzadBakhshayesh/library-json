@@ -16,7 +16,7 @@ public class Library {
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private ArrayList<Book> books = new ArrayList<>();
     private ArrayList<Member> members = new ArrayList<>();
-    private FileManager fileManager = new FileManager();
+    private final FileManager fileManager = new FileManager();
 
     public void addBook(String title, String author, int year) {
         Book newBook = new Book(title, author, year);
