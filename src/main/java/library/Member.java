@@ -1,7 +1,6 @@
 package library;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.List;
 
@@ -73,7 +72,6 @@ public class Member {
         this.email = email;
     }
 
-
     public ArrayList<Book> borrowedBooks() {
         return new ArrayList<>(this.borrowedBooks);
     }
@@ -93,49 +91,6 @@ public class Member {
         return borrowedBooks.contains(book);
     }
 
-    public static ArrayList<Long> borrowedIdsFromLine(String line) {
-        String[] parts = line.split("\\|", -1);
-        if (parts.length != 4) {
-            throw new LibraryException("Invalid member line: " + line);
-        }
-        ArrayList<Long> ids = new ArrayList<>();
-        String last = parts[3].trim();
-        if (last.isEmpty()) {
-            return ids;
-        }
-        try {
-            for (String s : last.split(",")) {
-                ids.add(Long.parseLong(s.trim()));
-            }
-        } catch (NumberFormatException e) {
-            throw new LibraryException("Invalid book id in member line: " + line);
-        }
-        return ids;
-    }
-
-    public String toFileLine() {
-        String ids = this.borrowedBooks.stream()
-                .map(book -> String.valueOf(book.getId()))
-                .collect(Collectors.joining(","));
-        return this.id + "|" + this.name + "|" + this.email + "|" + ids;
-    }
-
-    public static Member fromFileLine(String line) {
-        String[] parts = line.split("\\|", -1);
-        if (parts.length != 4) {
-            throw new LibraryException("Invalid member line: " + line);
-        }
-        try {
-            return new Member(
-                    Long.parseLong(parts[0].trim()),
-                    parts[1].trim(),
-                    parts[2].trim()
-            );
-        } catch (NumberFormatException e) {
-            throw new LibraryException("Invalid number in member line: " + line);
-        }
-    }
-
     public MemberData toData() {
         List<Long> ids = this.borrowedBooks.stream().map(book -> book.getId()).collect(Collectors.toList());
         return new MemberData(this.id, this.name, this.email, ids);
@@ -146,11 +101,8 @@ public class Member {
         return new Member(d.getId(), d.getName(), d.getEmail());
     }
 
-
     @Override
     public String toString() {
-        return "ID: " + this.id + " | Name: " + this.name + " | Email: " + this.email + " | Borrowed Books: " + borrowedBooks.stream()
-                .map(book -> book.getTitle())
-                .collect(Collectors.joining(", "));
+        return "ID: " + this.id + " | Name: " + this.name + " | Email: " + this.email + " | Borrowed Books: " + borrowedBooks.stream().map(book -> book.getTitle()).collect(Collectors.joining(", "));
     }
 }

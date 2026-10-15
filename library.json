@@ -3,32 +3,29 @@
     {
       "id": 1,
       "title": "js",
-      "author": "asdfsd",
-      "year": 256,
-      "isAvailable": false
+      "author": "sdf",
+      "year": 365,
+      "isAvailable": true
     },
     {
       "id": 2,
-      "title": "py",
-      "author": "azczxczx",
-      "year": 569,
-      "isAvailable": false
+      "title": "java",
+      "author": "asedf",
+      "year": 365,
+      "isAvailable": true
     }
   ],
   "members": [
     {
       "id": 1,
-      "name": "behzad",
+      "name": "BEHZAD",
       "email": "behzad@gmail.com",
-      "borrowedBookIds": [
-        1,
-        2
-      ]
+      "borrowedBookIds": []
     },
     {
       "id": 2,
-      "name": "ali",
-      "email": "ali@gmail.com",
+      "name": "بهزاد",
+      "email": "behzad@gmail.com",
       "borrowedBookIds": []
     }
   ]

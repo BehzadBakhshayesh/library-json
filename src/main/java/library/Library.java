@@ -5,12 +5,13 @@ import java.util.ArrayList;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 public class Library {
-    private static final String BOOKS_FILE = "books.txt";
-    private static final String MEMBERS_FILE = "members.txt";
     private static final String DATA_FILE = "library.json";
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private ArrayList<Book> books = new ArrayList<>();
@@ -159,65 +160,55 @@ public class Library {
         List<BookData> booksData = this.books.stream().map(book -> book.toData()).collect(Collectors.toList());
         List<MemberData> membersData = this.members.stream().map(member -> member.toData()).collect(Collectors.toList());
         LibraryData libraryData = new LibraryData(booksData, membersData);
+
         fileManager.saveText(DATA_FILE, gson.toJson(libraryData));
     }
-    public void load() {}
 
-    public void saveFile() {
-        StringBuilder booksText = new StringBuilder();
-        StringBuilder membersText = new StringBuilder();
-        for (Book b : books) {
-            booksText.append(b.toFileLine()).append("\n");
-        }
-        for (Member m : members) {
-            membersText.append(m.toFileLine()).append("\n");
-        }
-        fileManager.saveText(BOOKS_FILE, booksText.toString());
-        fileManager.saveText(MEMBERS_FILE, membersText.toString());
-    }
-
-    public void loadFile() {
+    public void load() {
         this.books.clear();
         this.members.clear();
 
-        File booksFile = new File(BOOKS_FILE);
-        if (booksFile.exists()) {
-            long maxBookId = 0;
-            String booksText = fileManager.loadText(BOOKS_FILE);
-            for (String line : booksText.split("\n")) {
-                if (line.isBlank()) {
-                    continue;
-                }
-                Book book = Book.fromFileLine(line);
-                this.books.add(book);
-                maxBookId = Math.max(maxBookId, book.getId());
-            }
-            IdGenerator.setBookCounter(maxBookId + 1);
+        File jsonFile = new File(DATA_FILE);
+        if (!jsonFile.exists()) {
+            return;
         }
 
-        File membersFile = new File(MEMBERS_FILE);
-        if (membersFile.exists()) {
-            long maxMemberId = 0;
-            String membersText = fileManager.loadText(MEMBERS_FILE);
-            for (String line : membersText.split("\n")) {
-                if (line.isBlank()) {
-                    continue;
-                }
-                Member member = Member.fromFileLine(line);
-                for (long bookId : Member.borrowedIdsFromLine(line)) {
-                    Book book = this.findBookById(bookId);
-                    if (book == null) {
-                        throw new LibraryException("Member " + member.getId()
-                                + " refers to a missing book: " + bookId);
-                    }
-                    member.addBorrowedBooks(book);
-
-                }
-                this.members.add(member);
-                maxMemberId = Math.max(maxMemberId, member.getId());
-            }
-            IdGenerator.setMemberCounter(maxMemberId + 1);
+        String text = fileManager.loadText(DATA_FILE);
+        LibraryData data;
+        try {
+            data = gson.fromJson(text, LibraryData.class);
+        } catch (JsonSyntaxException e) {
+            throw new LibraryException("Invalid JSON file: " + e.getMessage());
         }
+
+        if (data == null) {
+            return;
+        }
+
+        long maxBookId = 0;
+        for (BookData bd : data.getBooks()) {
+            Book book = Book.fromData(bd);
+            this.books.add(book);
+            maxBookId = Math.max(maxBookId, book.getId());
+        }
+        IdGenerator.setBookCounter(maxBookId + 1);
+
+        long maxMemberId = 0;
+        for (MemberData md : data.getMembers()) {
+            Member member = Member.fromData(md);
+            this.members.add(member);
+            maxMemberId = Math.max(maxMemberId, member.getId());
+            for (long bookId : md.getBorrowedBookIds()) {
+                Book book = this.findBookById(bookId);
+                if (book == null) {
+                    throw new LibraryException("Member " + member.getId()
+                            + " refers to a missing book: " + bookId);
+                }
+                member.addBorrowedBooks(book);
+            }
+        }
+        IdGenerator.setMemberCounter(maxMemberId + 1);
     }
+
 
 }
